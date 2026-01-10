@@ -28,6 +28,7 @@ canvas {
     text-align: center;
     color: #ff3333; /* Red alert color */
     z-index: 10;
+    background-color: #0a0a0a;
 }
 
 #gameOverScreen h1 {
