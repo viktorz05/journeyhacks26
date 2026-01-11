@@ -266,10 +266,11 @@ function triggerGameOver() {
 
     if (rebootBtn) {
         // 1. Le quitamos el "onclick" que tenía en el HTML (para que no recargue directo)
-        rebootBtn.removeAttribute("onclick");
+        rebootBtn.onclick = null;
 
         // 2. Le ponemos nuestra propia función
-        rebootBtn.addEventListener('click', () => {
+        rebootBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             // Reproducir sonido
             rebootSound.play().catch(e => console.log(e));
 
