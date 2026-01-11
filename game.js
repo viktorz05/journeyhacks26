@@ -16,16 +16,37 @@ const wordList = [
     "try", "catch", "void", "null", "int", "float"
 ];
 
+const rebootSound = new Audio('reboot.m4a');
 const completionSounds = [
-    new Audio('sound1.m4a'),
-    new Audio('sound2.m4a'),
-    new Audio('sound3.m4a')
+    new Audio('completition1.m4a'),
+    new Audio('completition3.m4a'),
+    new Audio('completition4.m4a'),
+    new Audio("completition5.m4a"),
+    new Audio("completition6.m4a"),
+    new Audio("completition7.m4a"),
+    new Audio("completition8.m4a")
 ];
+
+function playRandomSound() {
+    const randomIndex = Math.floor(Math.random() * completionSounds.length);
+    const soundToPlay = completionSounds[randomIndex];
+    const clone = soundToPlay.cloneNode();
+    clone.volume = 0.6;
+    clone.play().catch(e => console.log("Sound effect error:", e));
+}
+
+const bgMusic = new Audio('background.mp3');
+bgMusic.loop = true;   // Que se repita infinitamente
+bgMusic.volume = 0.3;  // Volumen bajo (30%) para no molestar
+
+// Bandera para iniciar la música con la primera tecla (Política de navegadores)
+let hasGameStarted = false;
 
 // --- GAME STATE ---
 let wordsOnScreen = [];
 let score = 0;
-let highScore = localStorage.getItem('hackathonHighScore') || 0;let isGameOver = false;
+let highScore = localStorage.getItem('hackathonHighScore') || 0;
+let isGameOver = false;
 let spawnRate = 2000;
 let fallSpeed = 1.0;
 
@@ -173,6 +194,12 @@ function drawUI(leader) {
 
 window.addEventListener('keydown', (e) => {
     if (isGameOver) return;
+
+    if (!hasGameStarted) {
+        bgMusic.play().catch(e => console.log("Music failed:", e));
+        hasGameStarted = true;
+    }
+
     if (!e.key.match(/^[a-z]$/i)) return;
 
     const key = e.key.toLowerCase();
@@ -201,6 +228,7 @@ window.addEventListener('keydown', (e) => {
         // ¿Palabra terminada?
         if (targetIndex >= leader.text.length) {
 
+            playRandomSound();
             // ¡MATAR A TODO EL GRUPO!
             comboGroup.forEach(word => {
                 word.isDead = true;
@@ -218,6 +246,9 @@ window.addEventListener('keydown', (e) => {
 function triggerGameOver() {
     isGameOver = true;
 
+    bgMusic.pause();
+    bgMusic.currentTime = 0; // Reiniciar la canción al principio
+
     // NUEVO: Lógica de guardado
     let message = score;
 
@@ -230,6 +261,24 @@ function triggerGameOver() {
 
     finalScoreSpan.innerText = message;
     gameOverScreen.classList.remove('hidden');
+
+    const rebootBtn = document.querySelector('#gameOverScreen button');
+
+    if (rebootBtn) {
+        // 1. Le quitamos el "onclick" que tenía en el HTML (para que no recargue directo)
+        rebootBtn.removeAttribute("onclick");
+
+        // 2. Le ponemos nuestra propia función
+        rebootBtn.addEventListener('click', () => {
+            // Reproducir sonido
+            rebootSound.play().catch(e => console.log(e));
+
+            // Esperar 500 milisegundos (0.5 seg) para que se escuche algo del sonido
+            setTimeout(() => {
+                location.reload();
+            }, 500);
+        });
+    }
 }
 
 window.addEventListener('resize', () => {
