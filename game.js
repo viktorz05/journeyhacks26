@@ -16,10 +16,16 @@ const wordList = [
     "try", "catch", "void", "null", "int", "float"
 ];
 
+const completionSounds = [
+    new Audio('sound1.m4a'),
+    new Audio('sound2.m4a'),
+    new Audio('sound3.m4a')
+];
+
 // --- GAME STATE ---
 let wordsOnScreen = [];
 let score = 0;
-let isGameOver = false;
+let highScore = localStorage.getItem('hackathonHighScore') || 0;let isGameOver = false;
 let spawnRate = 2000;
 let fallSpeed = 1.0;
 
@@ -143,6 +149,11 @@ function drawUI(leader) {
     ctx.font = "20px Courier New";
     ctx.fillText("SCORE: " + score, 20, 30);
 
+    ctx.fillStyle = "#ffcc00"; // Amarillo
+    ctx.textAlign = "right";
+    ctx.fillText("MAX: " + highScore, canvasWidth - 20, 30);
+    ctx.textAlign = "left"; // Resetear alineación
+
     if (leader) {
         // Contamos cuántas palabras iguales hay en pantalla para avisar del combo
         const comboCount = wordsOnScreen.filter(w => !w.isDead && w.text === leader.text).length;
@@ -206,7 +217,18 @@ window.addEventListener('keydown', (e) => {
 
 function triggerGameOver() {
     isGameOver = true;
-    finalScoreSpan.innerText = score;
+
+    // NUEVO: Lógica de guardado
+    let message = score;
+
+    // Si superamos el récord, actualizamos y guardamos
+    if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('hackathonHighScore', highScore);
+        message += " (NEW RECORD!)";
+    }
+
+    finalScoreSpan.innerText = message;
     gameOverScreen.classList.remove('hidden');
 }
 
