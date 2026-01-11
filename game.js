@@ -13,10 +13,12 @@ canvas.height = canvasHeight;
 const wordList = [
     "hack", "hack", "code", "code", "java", "java",
     "bug", "fix", "data", "loop", "loop", "if", "else",
-    "try", "catch", "void", "null", "int", "float"
+    "try", "catch", "void", "null", "int", "float",
+    "double"
 ];
 
-const rebootSound = new Audio('reboot.m4a');
+const rebootSound = new Audio('reboot.mp3');
+const losingSound = new Audio("losingSound.m4a");
 const completionSounds = [
     new Audio('completition1.m4a'),
     new Audio('completition3.m4a'),
@@ -249,6 +251,8 @@ function triggerGameOver() {
     bgMusic.pause();
     bgMusic.currentTime = 0; // Reiniciar la canción al principio
 
+    losingSound.play().catch(e => console.log("Error playing losing sound:", e));
+
     // NUEVO: Lógica de guardado
     let message = score;
 
@@ -261,25 +265,26 @@ function triggerGameOver() {
 
     finalScoreSpan.innerText = message;
     gameOverScreen.classList.remove('hidden');
+}
 
-    const rebootBtn = document.querySelector('#gameOverScreen button');
+const rebootBtn = document.querySelector('#gameOverScreen button');
 
-    if (rebootBtn) {
-        // 1. Le quitamos el "onclick" que tenía en el HTML (para que no recargue directo)
-        rebootBtn.onclick = null;
+if (rebootBtn) {
+    // 1. Desactivar el comportamiento del HTML (el location.reload instantáneo)
+    rebootBtn.onclick = null;
 
-        // 2. Le ponemos nuestra propia función
-        rebootBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            // Reproducir sonido
-            rebootSound.play().catch(e => console.log(e));
+    // 2. Añadir nuestro evento con sonido y espera
+    rebootBtn.addEventListener('click', (e) => {
+        e.preventDefault(); // Prevenir cualquier recarga automática
 
-            // Esperar 500 milisegundos (0.5 seg) para que se escuche algo del sonido
-            setTimeout(() => {
-                location.reload();
-            }, 500);
-        });
-    }
+        // Reproducir sonido
+        rebootSound.play().catch(err => console.log("Error playing reboot:", err));
+
+        // Esperar 0.5 segundos antes de recargar
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+    });
 }
 
 window.addEventListener('resize', () => {
