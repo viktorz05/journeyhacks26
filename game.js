@@ -296,4 +296,4 @@ window.addEventListener('resize', () => {
 
 // START
 setTimeout(spawnWord, 1000);
-update();
+update();t
